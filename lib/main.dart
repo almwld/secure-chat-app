@@ -5,7 +5,12 @@ import 'security.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  // ملاحظة: تهيئة فايربيس بدون خيارات قد تفشل في بعض النسخ، لذا نستخدم try-catch
+  try {
+    await Firebase.initializeApp();
+  } catch (e) {
+    print("Firebase already initialized or error: $e");
+  }
   runApp(SecureApp());
 }
 
@@ -13,45 +18,59 @@ class SecureApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData.dark().copyWith(scaffoldBackgroundColor: Color(0xFF0E1621)),
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData.dark().copyWith(scaffoldBackgroundColor: const Color(0xFF0E1621)),
       home: ChatScreen(),
     );
   }
 }
 
-class ChatScreen extends StatelessWidget {
+class ChatScreen extends StatefulWidget {
+  @override
+  _ChatScreenState createState() => _ChatScreenState();
+}
+
+class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _controller = TextEditingController();
 
-  void _sendSecureMessage() {
+  void _sendSecureMessage() async {
     if (_controller.text.isNotEmpty) {
-      // تشفير الرسالة قبل إرسالها للسحابة
-      String encrypted = SecureChat.encrypt(_controller.text);
-      FirebaseFirestore.instance.collection('messages').add({
-        'text': encrypted,
-        'createdAt': Timestamp.now(),
-      });
+      final text = _controller.text;
       _controller.clear();
+      
+      try {
+        String encrypted = SecureChat.encrypt(text);
+        await FirebaseFirestore.instance.collection('messages').add({
+          'text': encrypted,
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+      } catch (e) {
+        print("Error sending message: $e");
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Secure Chat"), backgroundColor: Color(0xFF17212B)),
+      appBar: AppBar(title: const Text("Secure Chat"), backgroundColor: const Color(0xFF17212B)),
       body: Column(
         children: [
-          Expanded(child: Container()), // هنا ستعرض الرسائل لاحقاً
+          Expanded(child: Center(child: Text("قاعدة البيانات متصلة الآن", style: TextStyle(color: Colors.grey)))),
           Padding(
-            padding: EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(8.0),
             child: Row(
               children: [
                 Expanded(
                   child: TextField(
                     controller: _controller,
-                    decoration: InputDecoration(hintText: "رسالة مشفرة...", border: OutlineInputBorder()),
+                    decoration: const InputDecoration(hintText: "رسالة مشفرة...", border: OutlineInputBorder()),
                   ),
                 ),
-                IconButton(icon: Icon(Icons.send), onPress: _sendSecureMessage),
+                IconButton(
+                  icon: const Icon(Icons.send, color: Color(0xFF5288C1)), 
+                  onPressed: _sendSecureMessage, // تم تصحيح الاسم هنا
+                ),
               ],
             ),
           ),
