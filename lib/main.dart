@@ -1,10 +1,3 @@
-#!/bin/bash
-
-# التأكد من وجود مجلد lib
-mkdir -p lib
-
-# كتابة الكود داخل main.dart
-cat << 'EOT' > lib/main.dart
 import 'package:flutter/material.dart';
 
 void main() => runApp(MaterialApp(
@@ -36,14 +29,3 @@ class ChatScreen extends StatelessWidget {
     );
   }
 }
-EOT
-
-# إضافة التغييرات والرفع
-git add .
-git commit -m "Fix directory structure and update UI"
-git push origin main
-
-echo "------------------------------------------------"
-echo "✅ تم الإصلاح والرفع بنجاح!"
-echo "🚀 راقب موقع Codemagic الآن، البناء سيبدأ آلياً."
-echo "------------------------------------------------"
