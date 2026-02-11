@@ -1,16 +1,9 @@
 {
-  "name": "mysecureapp",
+  "name": "secure-chat-app",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
   "dependencies": {
-    "matrix-js-sdk": "^40.3.0-rc.0"
+    "react": "18.2.0",
+    "react-native": "0.72.3"
   }
 }
