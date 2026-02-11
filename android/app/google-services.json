@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "611649500085",
+    "project_id": "cardiachat",
+    "storage_bucket": "cardiachat.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:611649500085:android:cd3d42d47cc8a18fff5ffc",
+        "android_client_info": {
+          "package_name": "com.cardiachat.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA8pKFisH9v9YB6O8YkHerO5s27FqviE6g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
