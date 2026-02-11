@@ -1,0 +1,16 @@
+name: secure_chat_app
+description: A real-time chat app.
+publish_to: 'none'
+version: 1.0.0+1
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.2
+  # سنحتاج لهذه المكتبات للربط الحقيقي لاحقاً
+  # firebase_core: ^2.15.0
+  # cloud_firestore: ^4.8.3
+
+flutter:
+  uses-material-design: true
