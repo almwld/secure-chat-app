@@ -1,3 +1,6 @@
 package com.example.secure_chat_app;
+
 import io.flutter.embedding.android.FlutterActivity;
-public class MainActivity extends FlutterActivity { }
+
+public class MainActivity extends FlutterActivity {
+}
