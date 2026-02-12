@@ -1,5 +1,6 @@
 name: secure_chat_app
 dependencies:
+  avatar_glow: ^3.0.1
   glass_kit: ^2.1.0
   agora_rtc_engine: ^6.3.2
   translator: ^0.1.7
