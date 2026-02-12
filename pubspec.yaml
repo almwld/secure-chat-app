@@ -1,5 +1,5 @@
 name: secure_chat_app
-description: A new Flutter project.
+description: A high-end secure messaging platform.
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -11,7 +11,15 @@ dependencies:
     sdk: flutter
   firebase_core: ^2.24.2
   cloud_firestore: ^4.13.6
+  firebase_storage: ^11.5.6 # لرفع الصور والفيديوهات والملفات
   encrypt: ^5.0.3
+  image_picker: ^1.0.4 # للكاميرا ومعرض الصور
+  file_picker: ^6.1.1 # للملفات (PDF, Docs)
+  path_provider: ^2.1.1
+  record: ^5.0.4 # لتسجيل الصوت
+  audioplayers: ^5.2.1 # لتشغيل التسجيلات
+  permission_handler: ^11.0.1 # لإدارة صلاحيات الميكروفون والكاميرا
+  flutter_chat_ui: ^1.6.10 # واجهة دردشة متقدمة تدعم الملصقات والوسائط
   cupertino_icons: ^1.0.2
 
 dev_dependencies:
