@@ -1,0 +1,9 @@
+def gms = { apply plugin: 'com.android.application' ; apply plugin: 'kotlin-android' }
+gms()
+android {
+    compileSdkVersion 34
+    namespace "com.example.secure_chat_app"
+    defaultConfig { applicationId "com.example.secure_chat_app" ; minSdkVersion 21 ; targetSdkVersion 34 ; versionCode 1 ; versionName "1.0" }
+    buildTypes { release { minifyEnabled true ; shrinkResources true ; proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro' } }
+}
+dependencies { implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version" }
