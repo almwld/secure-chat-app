@@ -1,10 +1,8 @@
 name: secure_chat_app
 description: A secure encrypted chat application.
 version: 1.0.0+1
-
 environment:
-  sdk: '>=3.10.0 <4.0.0' # هذا هو السطر الذي طلبه Codemagic
-
+  sdk: '>=3.10.0 <4.0.0'
 dependencies:
   flutter:
     sdk: flutter
@@ -14,15 +12,13 @@ dependencies:
   local_auth: ^2.1.6
   swipe_to: ^1.0.2
   translator: ^0.1.7
-  glass_kit: ^2.1.0
+  glass_kit: ^4.0.2
   avatar_glow: ^3.0.1
   cupertino_icons: ^1.0.2
-
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.0
-
 flutter:
   uses-material-design: true
   assets:
