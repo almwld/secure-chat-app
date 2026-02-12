@@ -2,12 +2,10 @@ workflows:
   android-release:
     name: Android Release Build (Target 20MB)
     max_build_duration: 15
-    instance_type: mac_mini_m1
+    instance_type: mac_mini_m2
     environment:
       groups:
         - default
-      vars:
-        PACKAGE_NAME: "com.example.secure_chat_app"
     scripts:
       - name: Clean and Get Dependencies
         script: |
@@ -15,7 +13,7 @@ workflows:
           flutter pub get
       - name: Build and Shrink APK
         script: |
-          flutter build apk --release --split-per-abi --tree-shake-icons --no-pub
+          flutter build apk --release --split-per-abi --tree-shake-icons --android-skip-build-dependency-validation
     artifacts:
       - build/app/outputs/flutter-apk/*.apk
     publishing:
