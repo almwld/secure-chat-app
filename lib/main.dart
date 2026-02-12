@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:file_picker/file_picker.dart';
 import 'security.dart';
+import 'dart:async';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,23 +31,34 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _messageController = TextEditingController();
-  final ImagePicker _picker = ImagePicker();
+  final String userId = "user_1"; // معرفك
+  final String peerId = "user_2"; // معرف الطرف الآخر
+  Timer? _typingTimer;
 
-  // ميزة التقاط صور/فيديو
-  void _pickMedia(ImageSource source) async {
-    final XFile? photo = await _picker.pickImage(source: source);
-    if (photo != null) {
-      // هنا يتم تشفير ملف الصورة ورفعه لـ Firebase Storage
-      print("تم اختيار وسائط: ${photo.path}");
-    }
+  // دالة تحديث حالة الكتابة
+  void _onTyping() {
+    FirebaseFirestore.instance.collection('users').doc(userId).set({
+      'isTyping': true,
+    }, SetOptions(merge: true));
+
+    // إيقاف الحالة بعد ثانيتين من التوقف عن الكتابة
+    _typingTimer?.cancel();
+    _typingTimer = Timer(Duration(seconds: 2), () {
+      FirebaseFirestore.instance.collection('users').doc(userId).set({
+        'isTyping': false,
+      }, SetOptions(merge: true));
+    });
   }
 
-  // ميزة رفع الملفات (PDF, Word)
-  void _pickFiles() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles();
-    if (result != null) {
-       print("تم اختيار ملف: ${result.files.first.name}");
-    }
+  void _sendMessage() async {
+    if (_messageController.text.trim().isEmpty) return;
+    String encryptedText = SecureChat.encrypt(_messageController.text);
+    _messageController.clear();
+    await FirebaseFirestore.instance.collection('messages').add({
+      'text': encryptedText,
+      'createdAt': FieldValue.serverTimestamp(),
+      'senderId': userId,
+    });
   }
 
   @override
@@ -56,81 +66,81 @@ class _ChatScreenState extends State<ChatScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xFF17212B),
-        title: Text("CardiaChat Pro"),
-        actions: [
-          IconButton(icon: Icon(Icons.videocam), onPressed: () {}), // اتصال فيديو
-          IconButton(icon: Icon(Icons.call), onPressed: () {}),     // اتصال صوتي
-        ],
-      ),
-      body: Column(
-        children: [
-          Expanded(child: Center(child: Text("مساحة الدردشة المشفرة", style: TextStyle(color: Colors.grey)))),
-          _buildAdvancedInput(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAdvancedInput() {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-      color: Color(0xFF17212B),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              IconButton(icon: Icon(Icons.add_circle_outline, color: Colors.blue), onPressed: _showAttachmentMenu),
-              Expanded(
-                child: TextField(
-                  controller: _messageController,
-                  decoration: InputDecoration(
-                    hintText: "رسالة...",
-                    border: InputBorder.none,
-                    prefixIcon: Icon(Icons.emoji_emotions_outlined, color: Colors.grey), // للملصقات
-                  ),
-                ),
-              ),
-              IconButton(icon: Icon(Icons.camera_alt_outlined, color: Colors.grey), onPressed: () => _pickMedia(ImageSource.camera)),
-              GestureDetector(
-                onLongPress: () => print("بدء تسجيل صوتي..."), // تسجيل صوتي
-                child: Icon(Icons.mic, color: Colors.blue, size: 28),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showAttachmentMenu() {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Color(0xFF17212B),
-      builder: (context) => Container(
-        padding: EdgeInsets.all(20),
-        child: Wrap(
-          spacing: 20,
-          runSpacing: 20,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _actionItem(Icons.insert_drive_file, "ملف", Colors.purple, _pickFiles),
-            _actionItem(Icons.camera_alt, "كاميرا", Colors.red, () => _pickMedia(ImageSource.camera)),
-            _actionItem(Icons.image, "معرض", Colors.pink, () => _pickMedia(ImageSource.gallery)),
-            _actionItem(Icons.headphones, "صوت", Colors.orange, () {}),
-            _actionItem(Icons.location_on, "الموقع", Colors.green, () {}),
-            _actionItem(Icons.person, "جهة اتصال", Colors.blue, () {}),
+            Text("CardiaChat Pro"),
+            StreamBuilder<DocumentSnapshot>(
+              stream: FirebaseFirestore.instance.collection('users').doc(peerId).snapshots(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) return Text("متصل", style: TextStyle(fontSize: 12));
+                bool isTyping = snapshot.data?.get('isTyping') ?? false;
+                bool isOnline = snapshot.data?.get('isOnline') ?? false;
+                
+                if (isTyping) return Text("جاري الكتابة...", style: TextStyle(fontSize: 12, color: Colors.greenAccent, fontWeight: FontWeight.bold));
+                return Text(isOnline ? "متصل الآن" : "آخر ظهور قريب", style: TextStyle(fontSize: 12, color: Colors.grey));
+              },
+            ),
           ],
         ),
       ),
+      body: Column(
+        children: [
+          Expanded(
+            child: StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('messages')
+                  .orderBy('createdAt', descending: true)
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
+                return ListView.builder(
+                  reverse: true,
+                  itemCount: snapshot.data!.docs.length,
+                  itemBuilder: (context, index) {
+                    var doc = snapshot.data!.docs[index];
+                    String decrypted = "🔒 رسالة مشفرة";
+                    try { decrypted = SecureChat.decrypt(doc['text']); } catch (e) {}
+                    return Align(
+                      alignment: doc['senderId'] == userId ? Alignment.centerRight : Alignment.centerLeft,
+                      child: Container(
+                        margin: EdgeInsets.all(8),
+                        padding: EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: doc['senderId'] == userId ? Color(0xFF2B5278) : Color(0xFF182533),
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: Text(decrypted),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+          _buildInputArea(),
+        ],
+      ),
     );
   }
 
-  Widget _actionItem(IconData icon, String label, Color color, VoidCallback onTap) {
-    return Column(
-      children: [
-        CircleAvatar(radius: 30, backgroundColor: color, child: IconButton(icon: Icon(icon, color: Colors.white), onPressed: onTap)),
-        SizedBox(height: 5),
-        Text(label, style: TextStyle(fontSize: 12)),
-      ],
+  Widget _buildInputArea() {
+    return Container(
+      padding: EdgeInsets.all(10),
+      color: Color(0xFF17212B),
+      child: Row(
+        children: [
+          IconButton(icon: Icon(Icons.add, color: Colors.blue), onPressed: () {}),
+          Expanded(
+            child: TextField(
+              controller: _messageController,
+              onChanged: (text) => _onTyping(), // استدعاء دالة الكتابة هنا
+              decoration: InputDecoration(hintText: "اكتب رسالة...", border: InputBorder.none),
+            ),
+          ),
+          IconButton(icon: Icon(Icons.send, color: Colors.blue), onPressed: _sendMessage),
+        ],
+      ),
     );
   }
 }
