@@ -1,5 +1,7 @@
 name: secure_chat_app
 dependencies:
+  glass_kit: ^2.1.0
+  agora_rtc_engine: ^6.3.2
   translator: ^0.1.7
   swipe_to: ^1.0.2
   flutter:
