@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.secure_chat_app"
-        minSdk 21
+        minSdk 23
         targetSdk 34
         versionCode 1
         versionName "1.0.0"
@@ -25,12 +25,9 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-    
-    sourceSets {
-        main.java.srcDirs += 'src/main/java'
-    }
 }
 
 dependencies {
+    // دعم المكتبات الكبيرة
     implementation "androidx.multidex:multidex:2.0.1"
 }
