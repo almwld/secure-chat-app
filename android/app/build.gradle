@@ -2,16 +2,9 @@ plugins {
     id "com.android.application"
     id "dev.flutter.flutter-gradle-plugin"
 }
-
 android {
     namespace "com.example.secure_chat_app"
     compileSdk 34
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
-    }
-
     defaultConfig {
         applicationId "com.example.secure_chat_app"
         minSdk 23
@@ -20,17 +13,4 @@ android {
         versionName "1.0.0"
         multiDexEnabled true
     }
-
-    buildTypes {
-        release {
-            signingConfig signingConfigs.debug
-            minifyEnabled true
-            shrinkResources true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-        }
-    }
-}
-
-dependencies {
-    implementation "androidx.multidex:multidex:2.0.1"
 }
